@@ -6,118 +6,112 @@ const gameOverContainer = document.getElementById('gameOverContainer');
 const board = document.getElementById('board');
 const inputPlayerOne = document.getElementById('inputPlayerOne');
 const inputPlayerTwo = document.getElementById('inputPlayerTwo');
+let gameInstance = null;
 
-const Gameboard = () => { 
+const GameBoard = () => { 
   const state = [null, null, null, null, null, null, null, null, null];
 
-  const displayBoard = () => {
-    for (let i = 0; i < 3; i++) {
-      let row = '';
-
-      for (let j = 0; j < 3; j++) {
-        row += state[i * 3 + j] ? state[i * 3 + j] : '-';
-      }
-
-      console.log(row);
-    }
+  const render = () => {
+    board.innerHTML = '';
+  
+    state.forEach((cell, index) => {
+      const cellElement = document.createElement('div');
+      cellElement.classList.add('cell');
+      cellElement.textContent = cell === null ? '' : cell;
+  
+      cellElement.addEventListener('click', () => {
+        console.log(`Cell ${index} clicked!`);
+      });
+      board.appendChild(cellElement);
+    });
   }
 
-  return { state, displayBoard };
+  return { state, render };
 };
 
 const Player = (name, mark) => {
     return { name, mark };
 };
 
-const renderBoard = (state) => {
-  board.innerHTML = '';
+const Game = (playerOne, playerTwo) => {
+  const board = GameBoard();
+  const player1 = Player(playerOne, 'X');
+  const player2 = Player(playerTwo, 'O');
+  let currentPlayer = player1;
 
-  state.forEach((cell, index) => {
-    const cellElement = document.createElement('div');
-    cellElement.classList.add('cell');
-    cellElement.textContent = cell === null ? '' : cell;
+  const getCurrentPlayer = () => currentPlayer;
 
-    cellElement.addEventListener('click', () => {
-      console.log(`Cell ${index} clicked!`);
-    });
-    board.appendChild(cellElement);
-  });
-}
+  const changePlayer = () => {
+    currentPlayer = currentPlayer === player1 ? player2 : player1;
+  };
 
-const startGame = () => {
-  const playerOne = inputPlayerTwo.value === ''
+  const makeMove = (index) => {
+    if (board.state[index] === null) {
+      board.state[index] = currentPlayer.mark;
+      changePlayer();
+    }
+  };
+
+  const checkWinner = () => {
+    const winningCombos = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+      [0, 4, 8], [2, 4, 6] // diagonals
+    ];
+
+    const state = board.state;
+    
+    for (let i = 0; i < winningCombos.length; i++) {
+      const [a, b, c] = winningCombos[i];
+      if (state[a] && state[a] === state[b] && state[a] === state[c]) {
+        return state[a];
+      }
+    }
+  
+    return null;
+  };
+
+  const checkDraw = () => {
+    return board.state.every(cell => cell !== null);
+  };
+
+  const endGame = () => {
+    const winner = checkWinner();
+    if (winner) {
+      let player = winner === player1.mark ? player1 : player2;
+      console.log('Game Over!')
+      console.log(`Winner: ${player.name} (${player.mark})`);
+    } else if (checkDraw()) {
+      console.log('The game ended in a Draw!');
+    }
+  };
+
+  return { getCurrentPlayer, makeMove, checkWinner, checkDraw, endGame, render: board.render }
+
+};
+
+function startGame() {
+  const playerOne = inputPlayerOne.value === ''
                     ? 'Player 1'
-                    : inputPlayerTwo.value;
+                    : inputPlayerOne.value;
 
   const playerTwo = inputPlayerTwo.value === ''
                     ? 'Player 2'
                     : inputPlayerTwo.value;
 
                     
-                    const game = (() => {
-    const gameboard = Gameboard();
-    const player1 = Player(playerOne, 'X');
-    const player2 = Player(playerTwo, 'O');
-    let currentPlayer = player1;
-    
-    const getCurrentPlayer = () => currentPlayer;
-    
-    const changePlayer = () => {
-      currentPlayer = currentPlayer === player1 ? player2 : player1;
-    };
+  gameInstance = Game(playerOne, playerTwo);
+
+  gameInstance.render();
+
   
-    const makeMove = (index) => {
-      if (gameboard.state[index] === null) {
-        gameboard.state[index] = currentPlayer.mark;
-        changePlayer();
-      }
-    };
-
-    const checkWinner = () => {
-      const winningCombos = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-        [0, 4, 8], [2, 4, 6] // diagonals
-      ];
-
-      const state = gameboard.state;
-      
-      for (let i = 0; i < winningCombos.length; i++) {
-        const [a, b, c] = winningCombos[i];
-        if (state[a] && state[a] === state[b] && state[a] === state[c]) {
-          return state[a];
-        }
-      }
-    
-      return null;
-    }
-
-    const checkDraw = () => {
-      return gameboard.state.every(cell => cell !== null);
-    }
-    
-    const endGame = () => {
-      const winner = checkWinner();
-      if (winner) {
-        let player = winner === player1.mark ? player1 : player2;
-        console.log('Game Over!')
-        console.log(`Winner: ${player.name} (${player.mark})`);
-      } else if (checkDraw()) {
-        console.log('The game ended in a Draw!');
-      }
-    }
-
-    return { gameboard, player1, player2, getCurrentPlayer, makeMove, checkWinner, checkDraw, endGame };
-  })();
-
-  renderBoard(game.gameboard.state);
+  gameBoardTitle.textContent = `${playerOne} VS ${playerTwo}`;
+  currentPlayer.textContent = `${gameInstance.getCurrentPlayer().name}'s turn (${gameInstance.getCurrentPlayer().mark})`;
   
   gameStartContainer.style.display = 'none';
+  gameOverContainer.style.display = 'none';
   gameBoardContainer.style.display = 'flex';
-  gameBoardTitle.textContent = `${playerOne} VS ${playerTwo}`;
-  currentPlayer.textContent = `${game.getCurrentPlayer().name}'s turn (${game.getCurrentPlayer().mark})`;
+}
 
-  return game;
-};
 
 // startGame('Sergio', 'Luis');
