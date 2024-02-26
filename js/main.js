@@ -112,6 +112,3 @@ function startGame() {
   gameOverContainer.style.display = 'none';
   gameBoardContainer.style.display = 'flex';
 }
-
-
-// startGame('Sergio', 'Luis');
