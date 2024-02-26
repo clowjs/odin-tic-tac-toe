@@ -1,5 +1,13 @@
-const Gameboard = () => { 
+const gameStartContainer = document.getElementById('gameStartContainer');
+const gameBoardContainer = document.getElementById('gameBoardContainer');
+const gameBoardTitle = document.getElementById('gameBoardTitle');
+const currentPlayer = document.getElementById('currentPlayer');
+const gameOverContainer = document.getElementById('gameOverContainer');
+const board = document.getElementById('board');
+const inputPlayerOne = document.getElementById('inputPlayerOne');
+const inputPlayerTwo = document.getElementById('inputPlayerTwo');
 
+const Gameboard = () => { 
   const state = [null, null, null, null, null, null, null, null, null];
 
   const displayBoard = () => {
@@ -21,15 +29,39 @@ const Player = (name, mark) => {
     return { name, mark };
 };
 
-const startGame = (playerOne, playerTwo) => {
-  const game = (() => {
+const renderBoard = (state) => {
+  board.innerHTML = '';
+
+  state.forEach((cell, index) => {
+    const cellElement = document.createElement('div');
+    cellElement.classList.add('cell');
+    cellElement.textContent = cell === null ? '' : cell;
+
+    cellElement.addEventListener('click', () => {
+      console.log(`Cell ${index} clicked!`);
+    });
+    board.appendChild(cellElement);
+  });
+}
+
+const startGame = () => {
+  const playerOne = inputPlayerTwo.value === ''
+                    ? 'Player 1'
+                    : inputPlayerTwo.value;
+
+  const playerTwo = inputPlayerTwo.value === ''
+                    ? 'Player 2'
+                    : inputPlayerTwo.value;
+
+                    
+                    const game = (() => {
     const gameboard = Gameboard();
     const player1 = Player(playerOne, 'X');
     const player2 = Player(playerTwo, 'O');
     let currentPlayer = player1;
-  
+    
     const getCurrentPlayer = () => currentPlayer;
-  
+    
     const changePlayer = () => {
       currentPlayer = currentPlayer === player1 ? player2 : player1;
     };
@@ -49,7 +81,7 @@ const startGame = (playerOne, playerTwo) => {
       ];
 
       const state = gameboard.state;
-    
+      
       for (let i = 0; i < winningCombos.length; i++) {
         const [a, b, c] = winningCombos[i];
         if (state[a] && state[a] === state[b] && state[a] === state[c]) {
@@ -63,7 +95,7 @@ const startGame = (playerOne, playerTwo) => {
     const checkDraw = () => {
       return gameboard.state.every(cell => cell !== null);
     }
-
+    
     const endGame = () => {
       const winner = checkWinner();
       if (winner) {
@@ -78,22 +110,14 @@ const startGame = (playerOne, playerTwo) => {
     return { gameboard, player1, player2, getCurrentPlayer, makeMove, checkWinner, checkDraw, endGame };
   })();
 
-  console.log(`Game Started!`);
-  console.log(`${game.player1.name} (${game.player1.mark}) VS ${game.player2.name} (${game.player2.mark})`);
-  console.log('-------------------');
-  console.log(`Current player: ${game.getCurrentPlayer().name}`)
-  game.gameboard.displayBoard();
-  console.log('Choose a cell to make a move: 0-8')
-
-  while (!game.checkWinner() && !game.checkDraw()) {
-    const move = prompt(`${game.getCurrentPlayer().name} (${game.getCurrentPlayer().mark})`);
-    game.makeMove(move);
-    game.gameboard.displayBoard();
-    console.log('-------------------');
-    console.log(`Current player: ${game.getCurrentPlayer().name} (${game.getCurrentPlayer().mark})`);
-  }
+  renderBoard(game.gameboard.state);
   
-  game.endGame();
+  gameStartContainer.style.display = 'none';
+  gameBoardContainer.style.display = 'flex';
+  gameBoardTitle.textContent = `${playerOne} VS ${playerTwo}`;
+  currentPlayer.textContent = `${game.getCurrentPlayer().name}'s turn (${game.getCurrentPlayer().mark})`;
+
+  return game;
 };
 
-startGame('Sergio', 'Luis');
+// startGame('Sergio', 'Luis');

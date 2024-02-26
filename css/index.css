@@ -15,12 +15,27 @@ body {
   padding: 2rem;
 }
 
-.container {
+.container, .start-game-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 2rem;
+}
+
+.players {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  > input {
+    padding: 1rem 1.5rem;
+    border: 1px solid #1e293b;
+    border-radius: 5px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+  }
 }
 
 button {
@@ -32,4 +47,40 @@ button {
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
+}
+
+#gameBoardContainer {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #1e293b;
+}
+
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 6rem;
+  color: #1e293b;
+  background-color: #e2e8f0;
+  font-size: 2rem;
+  font-weight: 600;
+  border: 1px solid #1e293b;
+  cursor: pointer;
+}
+
+#gameOverContainer {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
 }

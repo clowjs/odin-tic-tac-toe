@@ -16,8 +16,28 @@
   <body>
     <div class="container">
       <h1>Tic Tac Toe</h1>
-      <button>New Game</button>
-      <div class="board"></div>
+
+      <div class="start-game-container" id="gameStartContainer">
+        <div class="players">
+          <input type="text" placeholder="Player One" id="inputPlayerOne" />
+          <h2>VS</h2>
+          <input type="text" placeholder="Player Two" id="inputPlayerTwo" />
+        </div>
+        <button id="btnStartGame" onclick="startGame()">Start Game</button>
+      </div>
+
+      <div class="board" id="gameBoardContainer">
+        <h1 id="gameBoardTitle"></h1>
+        <h2 id="currentPlayer">Sergio's Turn</h2>
+
+        <div id="board"></div>
+      </div>
+
+      <div class="game-over" id="gameOverContainer">
+        <h2>Game Over</h2>
+        <h3 id="winner"></h3>
+        <button id="btnPlayAgain">Play Again</button>
+      </div>
     </div>
   </body>
 </html>
