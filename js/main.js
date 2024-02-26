@@ -6,7 +6,16 @@ const gameOverContainer = document.getElementById('gameOverContainer');
 const board = document.getElementById('board');
 const inputPlayerOne = document.getElementById('inputPlayerOne');
 const inputPlayerTwo = document.getElementById('inputPlayerTwo');
+const winner = document.getElementById('winner');
 let gameInstance = null;
+
+function handleClick(index) {
+  return function() {
+    gameInstance.makeMove(index);
+    gameInstance.render();
+    currentPlayer.textContent = `${gameInstance.getCurrentPlayer().name}'s turn (${gameInstance.getCurrentPlayer().mark})`;
+  }
+}
 
 const GameBoard = () => { 
   const state = [null, null, null, null, null, null, null, null, null];
@@ -19,9 +28,7 @@ const GameBoard = () => {
       cellElement.classList.add('cell');
       cellElement.textContent = cell === null ? '' : cell;
   
-      cellElement.addEventListener('click', () => {
-        console.log(`Cell ${index} clicked!`);
-      });
+      cellElement.addEventListener('click', handleClick(index));
       board.appendChild(cellElement);
     });
   }
@@ -41,14 +48,17 @@ const Game = (playerOne, playerTwo) => {
 
   const getCurrentPlayer = () => currentPlayer;
 
-  const changePlayer = () => {
-    currentPlayer = currentPlayer === player1 ? player2 : player1;
-  };
-
   const makeMove = (index) => {
-    if (board.state[index] === null) {
-      board.state[index] = currentPlayer.mark;
-      changePlayer();
+    if (board.state[index] !== null) {
+      console.log('Cell already taken!');
+      return
+    }
+
+    board.state[index] = currentPlayer.mark;
+    currentPlayer = currentPlayer === player1 ? player2 : player1;
+
+    if (checkWinner() || checkDraw()) {
+      endGame();
     }
   };
 
@@ -76,19 +86,38 @@ const Game = (playerOne, playerTwo) => {
   };
 
   const endGame = () => {
-    const winner = checkWinner();
-    if (winner) {
-      let player = winner === player1.mark ? player1 : player2;
-      console.log('Game Over!')
-      console.log(`Winner: ${player.name} (${player.mark})`);
+    const gameWinner = checkWinner();
+
+    if (gameWinner) {
+      let player = gameWinner === player1.mark ? player1 : player2;
+      winner.textContent = `${player.name} (${player.mark}) wins!`;
+
+      gameStartContainer.style.display = 'none';
+      gameBoardContainer.style.display = 'none';
+      gameOverContainer.style.display = 'flex';
+ 
     } else if (checkDraw()) {
-      console.log('The game ended in a Draw!');
+      winner.textContent = 'It\'s a draw!';
+
+      gameStartContainer.style.display = 'none';
+      gameBoardContainer.style.display = 'none';
+      gameOverContainer.style.display = 'flex';
     }
+
+    game = null;
   };
 
   return { getCurrentPlayer, makeMove, checkWinner, checkDraw, endGame, render: board.render }
 
 };
+
+function playAgain() {
+  inputPlayerOne.value = '';
+  inputPlayerTwo.value = '';
+  gameStartContainer.style.display = 'flex';
+  gameBoardContainer.style.display = 'none';
+  gameOverContainer.style.display = 'none';
+}
 
 function startGame() {
   const playerOne = inputPlayerOne.value === ''
